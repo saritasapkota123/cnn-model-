@@ -7,13 +7,11 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from torchvision.models import resnet18
 from PIL import Image
-import timm
+import time from facebook
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# ───────────────────────────────
-# MODEL DEFINITION
 class HybridCNNTransformer(nn.Module):
     def __init__(self):
         super(HybridCNNTransformer, self).__init__()
@@ -35,9 +33,6 @@ class HybridCNNTransformer(nn.Module):
         transformer_features = self.transformer(x)
         features = torch.cat((cnn_features, transformer_features), dim=1)
         return self.classifier(features)
-
-# ───────────────────────────────
-# UTILS
 def save_confusion_matrix(y_true, y_pred, class_names, filename="results/confusion_matrix.png"):
     cm = confusion_matrix(y_true, y_pred)
     os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -56,8 +51,6 @@ def save_classification_report(y_true, y_pred, class_names, filename="results/ev
     with open(filename, "w") as f:
         f.write(report)
 
-# ───────────────────────────────
-# TRAIN + VALIDATION
 def evaluate_model(model, val_loader, device):
     model.eval()
     all_preds, all_labels = [], []
@@ -108,10 +101,8 @@ def train_model():
 
     os.makedirs("models", exist_ok=True)
     torch.save(model.state_dict(), "models/hybrid_model.pth")
-    print("✅ Training complete and model saved.")
+    print("Training complete and model saved.")
 
-# ───────────────────────────────
-# EVALUATE
 def evaluate():
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -137,10 +128,9 @@ def evaluate():
 
     save_confusion_matrix(all_labels, all_preds, test_data.classes)
     save_classification_report(all_labels, all_preds, test_data.classes)
-    print("✅ Evaluation complete. Report and confusion matrix saved.")
+    print("Evaluation complete. Report and confusion matrix saved.")
 
-# ───────────────────────────────
-# BATCH INFERENCE
+
 def batch_infer():
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -168,10 +158,8 @@ def batch_infer():
                 label = "Crack" if prob > 0.5 else "No Crack"
                 f.write(f"{filename},{prob:.4f},{label}\n")
 
-    print("✅ Batch inference complete. Results saved to:", output_file)
+    print("Batch inference complete. Results saved to:", output_file)
 
-# ───────────────────────────────
-# SINGLE IMAGE PREDICTION
 def predict_image(img_path):
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -191,10 +179,8 @@ def predict_image(img_path):
         if prob > 0.5:
             print("⚠️ Crack Detected")
         else:
-            print("✅ No Crack Detected")
+            print("No Crack Detected")
 
-# ───────────────────────────────
-# ARGPARSE
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hairline Crack Detection")
     parser.add_argument('--mode', type=str, choices=['train', 'evaluate', 'infer', 'predict'], required=True, help="Mode to run")
@@ -211,4 +197,4 @@ if __name__ == "__main__":
     elif args.mode == 'predict' and args.image:
         predict_image(args.image)
     else:
-        print("❌ Invalid usage. Use --help to see options.")
+        print("Invalid usage. Use --help to see options.")
