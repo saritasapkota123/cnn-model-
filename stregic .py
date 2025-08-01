@@ -70,3 +70,4 @@ if args.show:
     plt.title(f"{label} ({prob:.2f})")
     plt.axis('off')
     plt.show()
+
